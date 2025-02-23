@@ -26,19 +26,19 @@ const listingSchema = new Schema(
       trim: true,
     },
     facilities: {
-      type: [String], 
-      default: [],
+      type: String, 
+      required:true
     },
     pricing: {
       type: Number, 
       required: true,
     },
-    images: {
-      type: [String], 
-      default: [],
+    image: {
+      type: String, 
+      required:true,
     },
   },
   { timestamps: true }
 );
-videoSchema.plugin(mongooseAggregatePaginate);
+listingSchema.plugin(mongooseAggregatePaginate);
 export const Listing = mongoose.model("Listing", listingSchema);

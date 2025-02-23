@@ -18,7 +18,7 @@ const unitSchema = new Schema(
       trim: true,
     },
     capacity: {
-      type: Number, 
+      type: String, 
       required: true,
     },
     price: {

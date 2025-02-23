@@ -18,26 +18,26 @@ const bookingSchema = new Schema(
       required: true,
     },
     bookingDates: {
-      type: [Date],
+      type: Date,
       required: true,
     },
     bookingTime: {
       type: String,
+      required:true
     },
     status: {
       type: String,
       enum: ["Pending", "Confirmed", "Cancelled", "Completed"],
       default: "Pending",
     },
-    paymentDetails: {
-      amount: { type: Number, required: true },
-      status: {
-        type: String,
-        enum: ["Pending", "Paid", "Failed"],
-        default: "Pending",
-      },
-      transactionId: { type: String, unique: true },
-    },
+    // paymentDetails: {
+    //   amount: { type: Number, required: true },
+    //   status: {
+    //     type: String,
+    //     enum: ["Pending", "Paid", "Failed"],
+    //     default: "Pending",
+    //   },
+    //   transactionId: { type: String, unique: true },},
   },
   { timestamps: true }
 );

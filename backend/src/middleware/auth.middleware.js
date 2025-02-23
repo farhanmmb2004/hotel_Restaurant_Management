@@ -19,3 +19,9 @@ export const verifyToken=asyncHandler(async(req,res,next)=>{
         throw new ApiError(401,error?.messege||"Invalid access token");
     }
 })
+export const authorizeVendor = asyncHandler(async (req, res, next) => {
+    if (req.user.role !== "vendor") {
+      throw new ApiError(403, "Access denied! Only vendors can perform this action.");
+    }
+    next();
+  });
