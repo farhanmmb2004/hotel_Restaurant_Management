@@ -18,7 +18,7 @@ router.post("/", verifyToken, authorizeVendor, upload.single("image"), addListin
 router.patch("/:listingId", verifyToken, authorizeVendor, upload.single("image"), updateListing);
 router.delete("/:listingId", verifyToken, authorizeVendor, deleteListing);
 router.get("/bookings", verifyToken, authorizeVendor, getVendorBookings);
-router.put("/bookings/update/:bookingId", verifyToken, authorizeVendor, updateBookingStatus);
+router.patch("/bookings/:bookingId", verifyToken, authorizeVendor, updateBookingStatus);
 router.get("/analytics", verifyToken, authorizeVendor, getVendorAnalytics);
 router.post("/unit/:listingId", verifyToken, authorizeVendor, addUnit); 
 router.patch("/unit/:unitId", verifyToken, authorizeVendor, updateUnit); 

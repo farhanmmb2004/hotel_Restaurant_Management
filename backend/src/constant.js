@@ -1,1 +1,1 @@
-export const DB_NAME="Hotels&restaurents";
+export const DB_NAME="Hotels&restaurents1";

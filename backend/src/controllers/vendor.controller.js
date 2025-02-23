@@ -5,8 +5,9 @@ import {ApiResponse} from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { Unit } from "../models/unit.model.js";
-// ✅ ADD NEW HOTEL/RESTAURANT LISTING
-export const addListing = asyncHandler(async (req, res) => {
+import mongoose from "mongoose";
+//  ADD NEW HOTEL/RESTAURANT LISTING
+const addListing = asyncHandler(async (req, res) => {
   const { name, address, description, facilities, pricing,type } = req.body;
   if (!name||!address||!description||!facilities||!pricing||!type) {
     throw new ApiError(400, "Enter All the datails");
@@ -21,7 +22,6 @@ export const addListing = asyncHandler(async (req, res) => {
   if (!uploadedImage) {
     throw new ApiError(500, "Failed to upload image");
   }
-  console.log(uploadedImage.url);
   const newListing = await Listing.create({
     vendorId: req.user._id,
     name,
@@ -36,8 +36,8 @@ export const addListing = asyncHandler(async (req, res) => {
   res.status(201).json(new ApiResponse(201,newListing,"added"));
 });
 
-// ✅ UPDATE LISTING (Only Vendor who created it can update)
-export const updateListing = asyncHandler(async (req, res) => {
+//  UPDATE LISTING (Only Vendor who created it can update)
+const updateListing = asyncHandler(async (req, res) => {
   const { listingId } = req.params;
   const { name, address, description, facilities, pricing,type } = req.body;
 
@@ -68,8 +68,8 @@ export const updateListing = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200,updatedListing,"updated"));
 });
 
-// ✅ DELETE LISTING
-export const deleteListing = asyncHandler(async (req, res) => {
+//  DELETE LISTING
+const deleteListing = asyncHandler(async (req, res) => {
   const { listingId } = req.params;
   const vendorId = req.user._id;
 
@@ -80,25 +80,72 @@ export const deleteListing = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, {}, "Listing deleted successfully"));
 });
 
-// ✅ VIEW BOOKINGS FOR VENDOR'S LISTINGS
-export const getVendorBookings = asyncHandler(async (req, res) => {
-  const vendorId = req.user._id;
+//  VIEW BOOKINGS FOR VENDOR'S LISTINGS
+const getVendorBookings = asyncHandler(async (req, res) => {
+  const vendorId = req.user?._id;
+  const bookings = await Booking.aggregate([
+    {
+      $lookup: {
+        from: "listings", 
+        localField: "listingId", 
+        foreignField: "_id", 
+        as: "listingDetails"
+      }
+    },
+    {
+      $unwind: "$listingDetails" 
+    },
+    {
+      $match: { "listingDetails.vendorId": new mongoose.Types.ObjectId(vendorId) } 
+    },
+    {
+      $lookup: {
+        from: "users", 
+        localField: "customerId",
+        foreignField: "_id",
+        as: "customerDetails"
+      }
+    },
+    {
+      $unwind: "$customerDetails" 
+    },
+    {
+      $project: {
+        _id: 1,
+        unitId:1,
+        listingId: 1,
+        customerId: 1,
+        date: 1,
+        amount: 1,
+        status: 1,
+        createdAt: 1,
+        listingDetails: {
+          _id: 1,
+          name: 1,
+          type: 1,
+          address: 1,
+          pricing: 1
+        },
+        customerDetails: {
+          name: 1,
+          email: 1,
+          phone: 1
+        }
+      }
+    }
+  ]);
 
-  const bookings = await Booking.find({}).populate("customerId", "name email");
-
-  const vendorBookings = bookings.filter((booking) => booking.listingId.vendorId.toString() === vendorId.toString());
-
-  res.status(200).json(new ApiResponse(200, vendorBookings, "Bookings retrieved successfully"));
+  res.status(200).json(new ApiResponse(200, bookings, "Bookings retrieved successfully"));
 });
 
-// ✅ UPDATE BOOKING STATUS (CONFIRM/CANCEL)
-export const updateBookingStatus = asyncHandler(async (req, res) => {
+// UPDATE BOOKING STATUS (CONFIRM/CANCEL)
+const updateBookingStatus = asyncHandler(async (req, res) => {
   const { bookingId } = req.params;
   const { status } = req.body; 
   const vendorId = req.user._id;
 
   const booking = await Booking.findById(bookingId).populate("listingId");
-
+ 
   if (!booking || booking.listingId.vendorId.toString() !== vendorId.toString()) {
     throw new ApiError(403, "Unauthorized or booking not found");
   }
@@ -109,13 +156,13 @@ export const updateBookingStatus = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, booking, `Booking status updated to ${status}`));
 });
 //add unit
-export const addUnit = asyncHandler(async (req, res) => {
+const addUnit = asyncHandler(async (req, res) => {
   const { listingId}=req.params
   const { name, capacity, price } = req.body;
   if(!name||!capacity||!price){
   throw new ApiError(400,"name capacity and price are required");
   }
-  // Check if listing exists and belongs to the vendor
+ 
   const listing = await Listing.findById(listingId);
   if (!listing) {
       throw new ApiError(404, "Listing not found");
@@ -124,13 +171,13 @@ export const addUnit = asyncHandler(async (req, res) => {
       throw new ApiError(403, "You are not authorized to add units to this listing");
   }
   const type=listing.type==="Restaurent"?"Table":"Room"
-  const newUnit = await Unit.create({ listingId,type, name, capacity, price });
+  const newUnit = await Unit.create({ listingId,type, name, capacity, price});
 
   res.status(201).json(new ApiResponse(201,newUnit,"added"));
 });
 
-// 🔵 Update a Unit (Modify pricing, availability, etc.)
-export const updateUnit = asyncHandler(async (req, res) => {
+//  Update a Unit (Modify pricing, availability, etc.)
+const updateUnit = asyncHandler(async (req, res) => {
   const { unitId } = req.params;
   const { name, capacity, price, availability } = req.body;
 
@@ -139,7 +186,7 @@ export const updateUnit = asyncHandler(async (req, res) => {
       throw new ApiError(404, "Unit not found");
   }
   
-  // Check if the unit belongs to the vendor
+ 
   const listing = await Listing.findById(unit.listingId);
   if (listing.vendorId.toString() !== req.user._id.toString()) {
       throw new ApiError(403, "You are not authorized to update this unit");
@@ -155,8 +202,8 @@ export const updateUnit = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, unit });
 });
 
-// 🔴 Delete a Unit
-export const deleteUnit = asyncHandler(async (req, res) => {
+// Delete a Unit
+ const deleteUnit = asyncHandler(async (req, res) => {
   const { unitId } = req.params;
 
   const unit = await Unit.findById(unitId);
@@ -164,7 +211,7 @@ export const deleteUnit = asyncHandler(async (req, res) => {
       throw new ApiError(404, "Unit not found");
   }
 
-  // Check if the unit belongs to the vendor
+
   const listing = await Listing.findById(unit.listingId);
   if (listing.vendorId.toString() !== req.user._id.toString()) {
       throw new ApiError(403, "You are not authorized to delete this unit");
@@ -176,8 +223,8 @@ export const deleteUnit = asyncHandler(async (req, res) => {
 });
 
 
-// ✅ ANALYTICS: TOTAL BOOKINGS & REVENUE PER LISTING
-export const getVendorAnalytics = asyncHandler(async (req, res) => {
+//  ANALYTICS: TOTAL BOOKINGS & REVENUE PER LISTING
+const getVendorAnalytics = asyncHandler(async (req, res) => {
   const vendorId = req.user._id;
 
   const listings = await Listing.find({ vendorId });
@@ -185,16 +232,27 @@ export const getVendorAnalytics = asyncHandler(async (req, res) => {
   const analytics = await Promise.all(
     listings.map(async (listing) => {
       const bookings = await Booking.find({ listingId: listing._id, status: "Completed" });
-      const revenue = bookings.reduce((total, booking) => total + booking.paymentDetails.amount, 0);
+      // const revenue = bookings.reduce((total, booking) => total + booking.paymentDetails.amount, 0);
 
       return {
         listingId: listing._id,
         name: listing.name,
         totalBookings: bookings.length,
-        totalRevenue: revenue,
+        // totalRevenue: revenue,
       };
     })
   );
 
   res.status(200).json(new ApiResponse(200, analytics, "Analytics retrieved successfully"));
 });
+export {
+  addListing,
+  updateListing,
+  deleteListing,
+  getVendorBookings,
+  updateBookingStatus,
+  getVendorAnalytics,
+  addUnit,
+  updateUnit,
+  deleteUnit
+}

@@ -157,10 +157,12 @@ const viewListingDetails = asyncHandler(async (req, res) => {
                     facilities:1,
                     pricing:1,
                     image:1,
+                    vendorId:1,
                     vendorDetails:{
                         name:1,
                         phone:1,
                         email:1,
+                        vendorId:1,
                         createdAt:1
                     },
                     unitDetails:{
@@ -184,7 +186,7 @@ const viewListingDetails = asyncHandler(async (req, res) => {
 
 const bookListingUnit = asyncHandler(async (req, res) => {
     const {listingId, unitId}=req.params
-    const {  bookingDate, bookingTime } = req.body;
+    const {  bookingDate, bookingTime,vendorId } = req.body;
     const bookingDates=new Date(bookingDate);
     if (!listingId || !unitId || !bookingDates||!bookingTime) {
         throw new ApiError(400, "Missing booking details");
@@ -193,6 +195,7 @@ const bookListingUnit = asyncHandler(async (req, res) => {
     if (!unit) {
         throw new ApiError(404, "Unit not found");
     }
+    console.log(unit);
     if (unit.listingId.toString()!=listingId) {
         throw new ApiError(404, "invalid listning id");
     }
@@ -215,6 +218,7 @@ const bookListingUnit = asyncHandler(async (req, res) => {
         bookingDates,
         bookingTime,
         status: "Pending",
+        vendorId,
     });
 
     res.status(201).json(new ApiResponse(201, newBooking, "Booking successful, pending approval"));
