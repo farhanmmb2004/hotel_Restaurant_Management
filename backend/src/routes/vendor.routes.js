@@ -8,12 +8,13 @@ import {
   getVendorAnalytics,
   addUnit,
   updateUnit,
-  deleteUnit
+  deleteUnit,
+  getAllVendorsListings
 } from "../controllers/vendor.controller.js"
 import { verifyToken, authorizeVendor } from "../middleware/auth.middleware.js";
 import { upload } from "../middleware/multer.middleware.js";
 const router = express.Router();
-
+router.get("/listings/:vendorId",getAllVendorsListings);
 router.post("/", verifyToken, authorizeVendor, upload.single("image"), addListing);
 router.patch("/:listingId", verifyToken, authorizeVendor, upload.single("image"), updateListing);
 router.delete("/:listingId", verifyToken, authorizeVendor, deleteListing);

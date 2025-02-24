@@ -6,6 +6,22 @@ import { ApiError } from "../utils/ApiError.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { Unit } from "../models/unit.model.js";
 import mongoose from "mongoose";
+const getAllVendorsListings = asyncHandler(async (req, res) => {
+  const { vendorId } = req.params;
+
+  try {
+    const listings = await Listing.find({ vendorId: vendorId });
+
+    if (!listings || listings.length === 0) {
+      return res.status(404).json(new ApiResponse(404, [], "No listings found for this vendor"));
+    }
+
+    res.status(200).json(new ApiResponse(200, listings, "Vendor listings retrieved successfully"));
+  } catch (error) {
+    res.status(500).json(new ApiResponse(500, null, "Internal Server Error"));
+  }
+});
+
 //  ADD NEW HOTEL/RESTAURANT LISTING
 const addListing = asyncHandler(async (req, res) => {
   const { name, address, description, facilities, pricing,type } = req.body;
@@ -254,5 +270,7 @@ export {
   getVendorAnalytics,
   addUnit,
   updateUnit,
-  deleteUnit
+  deleteUnit,
+  getAllVendorsListings
+
 }
