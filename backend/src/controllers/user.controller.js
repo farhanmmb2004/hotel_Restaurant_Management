@@ -320,6 +320,10 @@ const writeReview = asyncHandler(async (req, res) => {
     if(booking.status!=='Completed'){
      throw new ApiError(403,"cannot rate the booking before taking the services")
     }
+    const isReveiwExist=await Review.find({bookingId});
+    if(isReveiwExist){
+     throw new ApiError(401,"reveiw already exists");
+    }
     const newReview = await Review.create({
       bookingId,
       customerId: req.user._id,
