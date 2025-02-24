@@ -224,12 +224,87 @@ const bookListingUnit = asyncHandler(async (req, res) => {
     res.status(201).json(new ApiResponse(201, newBooking, "Booking successful, pending approval"));
 });
 
+// const bookingHistory = asyncHandler(async (req, res) => {
+//     const bookings = await Booking.find({ customerId: req.user._id }).populate("listingId unitId");
+  
+//     res.status(200).json(new ApiResponse(200, bookings, "Booking history retrieved successfully"));
+//   });
 const bookingHistory = asyncHandler(async (req, res) => {
-    const bookings = await Booking.find({ customerId: req.user._id }).populate("listingId unitId");
+    // Using aggregation pipeline to join bookings with reviews
+    const bookings = await Booking.aggregate([
+      // Match bookings for the current user
+      {
+        $match: { 
+          customerId:new mongoose.Types.ObjectId(req.user._id) 
+        }
+      },
+      // Lookup listings data
+      {
+        $lookup: {
+          from: "listings",
+          localField: "listingId",
+          foreignField: "_id",
+          as: "listingData"
+        }
+      },
+      // Lookup unit data
+      {
+        $lookup: {
+          from: "units",
+          localField: "unitId",
+          foreignField: "_id",
+          as: "unitData"
+        }
+      },
+      // Unwind the arrays (since lookups return arrays)
+      {
+        $unwind: {
+          path: "$listingData",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $unwind: {
+          path: "$unitData",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      // Left join with reviews to check if the user has reviewed this booking
+      {
+        $lookup: {
+          from: "reviews",
+          let: { bookingId: "$_id", customerId: "$customerId" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$bookingId", "$$bookingId"] },
+                    { $eq: ["$customerId", "$$customerId"] }
+                  ]
+                }
+              }
+            }
+          ],
+          as: "reviewData"
+        }
+      },
+      // Add the hasReviewed field based on whether the review exists
+      {
+        $addFields: {
+          hasReviewed: { $gt: [{ $size: "$reviewData" }, 0] }
+        }
+      },
+      // Remove the reviewData array from the final results
+      {
+        $project: {
+          reviewData: 0
+        }
+      }
+    ]);
   
     res.status(200).json(new ApiResponse(200, bookings, "Booking history retrieved successfully"));
   });
-
 const writeReview = asyncHandler(async (req, res) => {
     const {bookingId}=req.params
     const { rating, comment } = req.body;
