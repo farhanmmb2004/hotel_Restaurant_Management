@@ -317,7 +317,7 @@ const writeReview = asyncHandler(async (req, res) => {
     if (!booking || booking.customerId.toString() !== req.user._id.toString()) {
       throw new ApiError(403, "Unauthorized to review this booking");
     }
-    if(booking.status!=='completed'){
+    if(booking.status!=='Completed'){
      throw new ApiError(403,"cannot rate the booking before taking the services")
     }
     const newReview = await Review.create({
