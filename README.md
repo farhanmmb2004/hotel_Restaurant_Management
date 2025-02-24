@@ -128,7 +128,8 @@ GET /listings
       "location": "New York",
       "pricing": 1200,
       "facilities": "WiFi,Pool",
-      "rating": 4.5
+      "rating": 4.5,
+       "image":"url",
     }
   ],
   "message": "Listings retrieved successfully"
@@ -305,7 +306,8 @@ All routes require authentication with a valid token.
   "description": "Luxury hotel with great amenities",
   "facilities": "WiFi,Parking,Pool",
   "pricing": 100,
-  "type": "Hotel"
+  "type": "Hotel",
+  "image":"<raugh image file>"
 }
 ```
 
