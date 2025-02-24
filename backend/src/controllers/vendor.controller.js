@@ -12,9 +12,9 @@ const getAllVendorsListings = asyncHandler(async (req, res) => {
   try {
     const listings = await Listing.find({ vendorId: vendorId });
 
-    if (!listings || listings.length === 0) {
-      return res.status(404).json(new ApiResponse(404, [], "No listings found for this vendor"));
-    }
+    // if (!listings || listings.length === 0) {
+    //   return res.status(404).json(new ApiResponse(404, [], "No listings found for this vendor"));
+    // }
 
     res.status(200).json(new ApiResponse(200, listings, "Vendor listings retrieved successfully"));
   } catch (error) {
