@@ -166,7 +166,7 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Unauthorized or booking not found");
   }
   if(status!=='Cancelled'){
-    throw new ApiError(403, "does not matches");
+    throw new ApiError(403, status);
   }
   console.log(booking);
   console.log(status);
