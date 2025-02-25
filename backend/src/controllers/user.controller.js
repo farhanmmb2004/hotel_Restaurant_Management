@@ -235,7 +235,7 @@ const bookingHistory = asyncHandler(async (req, res) => {
       // Match bookings for the current user
       {
         $match: { 
-          customerId:new mongoose.Types.ObjectId(req.user._id) 
+          customerId: new mongoose.Types.ObjectId(req.user._id) 
         }
       },
       // Lookup listings data
@@ -300,8 +300,13 @@ const bookingHistory = asyncHandler(async (req, res) => {
         $project: {
           reviewData: 0
         }
+      },
+      // Sort by creation date in descending order (most recent first)
+      {
+        $sort: { createdAt: -1 }
       }
     ]);
+    
   
     res.status(200).json(new ApiResponse(200, bookings, "Booking history retrieved successfully"));
   });

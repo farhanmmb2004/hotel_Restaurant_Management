@@ -101,56 +101,52 @@ const getVendorBookings = asyncHandler(async (req, res) => {
   const vendorId = req.user?._id;
   const bookings = await Booking.aggregate([
     {
-      $lookup: {
-        from: "listings", 
-        localField: "listingId", 
-        foreignField: "_id", 
-        as: "listingDetails"
-      }
-    },
-    {
-      $unwind: "$listingDetails" 
-    },
-    {
-      $match: { "listingDetails.vendorId": new mongoose.Types.ObjectId(vendorId) } 
-    },
-    {
-      $lookup: {
-        from: "users", 
-        localField: "customerId",
-        foreignField: "_id",
-        as: "customerDetails"
-      }
-    },
-    {
-      $unwind: "$customerDetails" 
-    },
-    {
-      $project: {
-        _id: 1,
-        unitId:1,
-        listingId: 1,
-        customerId: 1,
-        bookingDates: 1,
-        bookingTime
-        amount: 1,
-        status: 1,
-        createdAt: 1,
-        listingDetails: {
-          _id: 1,
-          name: 1,
-          type: 1,
-          address: 1,
-          pricing: 1
-        },
-        customerDetails: {
-          name: 1,
-          email: 1,
-          phone: 1
+        $lookup: {
+            from: "listings",
+            localField: "listingId",
+            foreignField: "_id",
+            as: "listingDetails"
         }
-      }
+    },
+    { $unwind: "$listingDetails" },
+    {
+        $match: { "listingDetails.vendorId": new mongoose.Types.ObjectId(vendorId) }
+    },
+    {
+        $lookup: {
+            from: "users",
+            localField: "customerId",
+            foreignField: "_id",
+            as: "customerDetails"
+        }
+    },
+    { $unwind: "$customerDetails" },
+    {
+        $sort: { createdAt: -1 } // Sort in descending order based on creation date
+    },
+    {
+        $project: {
+            _id: 1,
+            bookingDates: 1,
+            bookingTime: 1,
+            status: 1,
+            createdAt: 1,
+            listingDetails: {
+                _id: 1,
+                name: 1,
+                type: 1,
+                address: 1,
+                pricing: 1
+            },
+            customerDetails: {
+                name: 1,
+                email: 1,
+                phone: 1
+            }
+        }
     }
-  ]);
+]);
+
 
   res.status(200).json(new ApiResponse(200, bookings, "Bookings retrieved successfully"));
 });
