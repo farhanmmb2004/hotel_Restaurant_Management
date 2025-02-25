@@ -5,7 +5,7 @@ import { PrivateRoute } from './components/PrivateRoute.jsx';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import CustomerDashboard from './pages/customer/Dashboard';
-import Unauthorized from './pages/unAuthorized.jsx';
+import Unauthorized from './pages/unauthorized.jsx';
 
 // Customer
 import { Listings } from './pages/customer/Listings.jsx';
