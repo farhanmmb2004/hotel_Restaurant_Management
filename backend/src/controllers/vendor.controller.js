@@ -166,7 +166,7 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
   booking.status = status;
   await booking.save();
 
-  res.status(200).json(new ApiResponse(200, booking, `Booking status updated to ${status}`));
+  res.status(200).json(new ApiResponse(200, booking, `Booking status updated to `));
 });
 //add unit
 const addUnit = asyncHandler(async (req, res) => {
