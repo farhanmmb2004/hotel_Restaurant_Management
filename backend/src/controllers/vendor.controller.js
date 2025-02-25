@@ -162,8 +162,11 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
 
   const booking = await Booking.findById(bookingId).populate("listingId");
   // || booking.listingId.vendorId.toString() !== vendorId.toString()
-  if (booking) {
+  if (!booking) {
     throw new ApiError(403, "Unauthorized or booking not found");
+  }
+  if(status!=='Cancelled'){
+    throw new ApiError(403, "does not matches");
   }
   console.log(booking);
   console.log(status);
