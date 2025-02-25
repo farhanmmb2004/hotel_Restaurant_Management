@@ -157,7 +157,7 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
   const { status } = req.body; 
   const vendorId = req.user._id;
 
-  const booking = await Booking.findById(bookingId).populate("listingId");
+  const booking = await Booking.findById(bookingId).populate("listingId").populate("bookingId");
  
   if (!booking || booking.listingId.vendorId.toString() !== vendorId.toString()) {
     throw new ApiError(403, "Unauthorized or booking not found");
