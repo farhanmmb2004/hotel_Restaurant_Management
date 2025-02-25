@@ -38,7 +38,6 @@ export const authService = {
   loginUser: async (credentials) => {
     try {
       const response = await api.post('/users/login', credentials);
-      console.log("hello");
       if (response.data.data.accessToken) {
         localStorage.setItem('token', response.data.data.accessToken);
         localStorage.setItem('user', JSON.stringify(response.data.data));
@@ -122,6 +121,7 @@ export const vendorService = {
         }
       },
     getListings: async (vendorId) => {
+      console.log("hello");
         try {
           const response = await api.get(`vendors/listings/${vendorId}`);
           return response.data;
@@ -131,7 +131,6 @@ export const vendorService = {
       },
   createListing: async (listingData) => {
     try {
-        console.log(listingData);
       const response = await api.post('/vendors', listingData);
       return response.data;
     } catch (error) {
@@ -169,7 +168,7 @@ export const vendorService = {
 
   updateBookingStatus: async (bookingId, status) => {
     try {
-      const response = await api.patch(`/vendors${bookingId}`, { status });
+      const response = await api.patch(`/vendors/bookings/${bookingId}`, status );
       return response.data;
     } catch (error) {
       throw error.response?.data || error;

@@ -15,6 +15,7 @@ export const BookingHistory = () => {
     try {
       setLoading(true);
       const data = await customerService.getBookingHistory();
+      console.log(data.data);
       setBookings(data.data);
       setError(null);
     } catch (err) {
@@ -47,6 +48,7 @@ export const BookingHistory = () => {
         <div className="space-y-4">
           {bookings.map(booking => (
             <div key={booking.id} className="border rounded p-4 shadow">
+              
               <div className="flex flex-col md:flex-row justify-between">
                 <div>
                   <h3 className="font-bold text-lg mb-1">{booking.listingData.name}</h3>
@@ -67,19 +69,25 @@ export const BookingHistory = () => {
                   {/* <p className="text-sm">
                     <span className="font-medium">Guests:</span> {booking.guests}
                   </p> */}
-                  <p className="font-bold mt-2">${booking.unitId.price}</p>
+                  <p className="font-bold mt-2">${booking.unitData.price}</p>
                 </div>
               </div>
               
               <div className="mt-4 pt-4 border-t flex justify-end">
-                {booking.status === 'Completed' && !booking.hasReviewrd && (
-                  <Link 
-                    to={`customer/booking/review/${booking._id}`}
-                    className="bg-green-600 text-white px-4 py-2 rounded text-sm"
-                  >
-                    Leave Review
-                  </Link>
-                )}
+              {booking.status === 'Completed' ? (
+    booking.hasReviewed ? (
+      <span className="bg-gray-300 text-gray-700 px-4 py-2 rounded text-sm">
+        Reviewed ✅
+      </span>
+    ) : (
+      <Link 
+        to={`/customer/booking/review/${booking._id}`}
+        className="bg-green-600 text-white px-4 py-2 rounded text-sm"
+      >
+        Leave Review
+      </Link>
+    )
+  ) : null}
                 <Link 
                   to={`/customer/listings/${booking.listingId}`}
                   className="bg-blue-600 text-white px-4 py-2 rounded text-sm ml-2"

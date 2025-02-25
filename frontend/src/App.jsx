@@ -1,7 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { PrivateRoute } from './components/PrivateRoute.jsx';
+import { useNavigate } from 'react-router-dom';
 import Login from './pages/Login';
+import Register from './pages/Register'
 import CustomerDashboard from './pages/customer/Dashboard';
 import Unauthorized from './pages/unAuthorized.jsx';
 //customer
@@ -20,14 +22,15 @@ import AddUnit from './pages/vendor/AddUnit';
 // import EditUnit from './pages/vendor/EditUnit';
 import ManageBookings from './pages/vendor/ManageBookings';
 function App() {
+  // const Navigate=useNavigate()
   return (
     <AuthProvider>
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
-          {/* <Route path="/register" element={<Register />} /> */}
-          <Route 
-            path="/customer/dashboard" 
+          <Route path="/register" element={<Register />} />
+          {/* <Route path="/" element={<Navigate to="/login" replace />}/> */}
+           <Route path="/customer/dashboard" 
             element={
               <PrivateRoute allowedRoles={['customer']}>
                 <CustomerDashboard />
@@ -35,14 +38,6 @@ function App() {
             } 
           />
           <Route path="/unauthorized" element={<Unauthorized />} />
-          <Route 
-            path="/vendor/dashboard" 
-            element={
-              <PrivateRoute allowedRoles={['vendor']}>
-                <VendorDashboard />
-              </PrivateRoute>
-            } 
-          />
           <Route 
             path="/customer/listings" 
             element={
@@ -80,6 +75,14 @@ function App() {
             element={
               <PrivateRoute allowedRoles={['customer']}>
                 <Review/>
+              </PrivateRoute>
+            } 
+          />
+           <Route 
+            path="/vendor/dashboard" 
+            element={
+              <PrivateRoute allowedRoles={['vendor']}>
+                <VendorDashboard />
               </PrivateRoute>
             } 
           />

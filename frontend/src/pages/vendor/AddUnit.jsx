@@ -43,26 +43,32 @@ const AddUnit = () => {
   };
 
   return (
-    <div>
-      <h1>Add New Unit</h1>
+    <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h1 className="text-2xl font-semibold text-gray-800 mb-4">Add New Unit</h1>
       
-      <form onSubmit={handleSubmit}>
-        {error && <div>{error}</div>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {error && <div className="text-red-500">{error}</div>}
         
         <div>
-          <label>Name/Room Number</label>
+          <label className="block font-medium text-gray-700">Name/Room Number</label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
             required
+            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         
         <div>
-          <label>Type</label>
-          <select name="type" value={formData.type} onChange={handleChange}>
+          <label className="block font-medium text-gray-700">Type</label>
+          <select 
+            name="type" 
+            value={formData.type} 
+            onChange={handleChange} 
+            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
             <option value="Standard">Standard</option>
             <option value="Deluxe">Deluxe</option>
             <option value="Suite">Suite</option>
@@ -71,7 +77,7 @@ const AddUnit = () => {
         </div>
         
         <div>
-          <label>Capacity (people)</label>
+          <label className="block font-medium text-gray-700">Capacity (people)</label>
           <input
             type="number"
             name="capacity"
@@ -79,11 +85,12 @@ const AddUnit = () => {
             value={formData.capacity}
             onChange={handleChange}
             required
+            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         
         <div>
-          <label>Price</label>
+          <label className="block font-medium text-gray-700">Price</label>
           <input
             type="number"
             name="price"
@@ -91,27 +98,37 @@ const AddUnit = () => {
             value={formData.price}
             onChange={handleChange}
             required
+            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         
-        <div>
-          <label>
-            <input
-              type="checkbox"
-              name="availability"
-              checked={formData.availability}
-              onChange={handleChange}
-            />
-            Available for Booking
-          </label>
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            name="availability"
+            checked={formData.availability}
+            onChange={handleChange}
+            className="w-5 h-5 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+          />
+          <label className="ml-2 text-gray-700">Available for Booking</label>
         </div>
         
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Adding...' : 'Add Unit'}
-        </button>
-        <button type="button" onClick={() => navigate(`/vendor/listings/${listingId}`)}>
-          Cancel
-        </button>
+        <div className="flex space-x-4">
+          <button 
+            type="submit" 
+            disabled={isSubmitting}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400"
+          >
+            {isSubmitting ? 'Adding...' : 'Add Unit'}
+          </button>
+          <button 
+            type="button" 
+            onClick={() => navigate(`/vendor/listings/${listingId}`)}
+            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );
