@@ -279,7 +279,7 @@ const bookingHistory = asyncHandler(async (req, res) => {
               $match: {
                 $expr: {
                   $and: [
-                    { $eq: ["$bookingId", "$$bookingId"] },
+                    { $eq: ["$bookingId", { $toObjectId: "$$bookingId" }] }, // Convert if necessary
                     { $eq: ["$customerId", "$$customerId"] }
                   ]
                 }
@@ -325,7 +325,7 @@ const writeReview = asyncHandler(async (req, res) => {
     if(booking.status!=='Completed'){
      throw new ApiError(403,"cannot rate the booking before taking the services")
     }
-    const isReveiwExist=await Review.find({bookingId});
+    const isReveiwExist=await Review.findOne({bookingId});
     if(isReveiwExist){
      throw new ApiError(401,"reveiw already exists");
     }
