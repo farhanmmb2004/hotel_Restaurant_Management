@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
+import moment from 'moment'; // Install moment.js for time formatting
 
 const ManageBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -7,16 +8,34 @@ const ManageBookings = () => {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
   const [expandedBooking, setExpandedBooking] = useState(null); // Track expanded booking
-
+  
   useEffect(() => {
     fetchBookings();
   }, []);
-
+  // const getUserNameFromToken = () => {
+  //   const token = localStorage.getItem('accessToken');
+  
+  //   if (!token) return null;
+  
+  //   try {
+  //     // JWT structure: header.payload.signature
+  //     const payloadBase64 = token.split('.')[1]; // Extract payload part
+  //     const decodedPayload = JSON.parse(atob(payloadBase64)); // Decode base64
+  
+  //     return decodedPayload.name || null; // Return the 'name' field if present
+  //   } catch (error) {
+  //     console.error('Invalid token format:', error);
+  //     return null;
+  //   }
+  // };
   const fetchBookings = async () => {
     setIsLoading(true);
     try {
       const response = await api.vendor.getVendorBookings();
       setBookings(response.data || []);
+      console.log(response.data);
+//       const userName = getUserNameFromToken();
+// console.log('User Name:', userName);
       setError(null);
     } catch (err) {
       setError('Failed to load bookings. Please try again later.');
@@ -74,10 +93,23 @@ const ManageBookings = () => {
         <div className="space-y-4">
           {filteredBookings.map(booking => (
             <div key={booking._id} className="p-4 border rounded-lg shadow-sm">
-              {/* <h3 className="text-lg font-semibold">Booking #{booking._id}</h3> */}
               <p className="text-gray-600">Date: {new Date(booking.bookingDates).toLocaleDateString()}</p>
               <p className="text-gray-600">Time: {booking.bookingTime}</p>
-              <p className="text-gray-600">Status: {booking.status}</p>
+              
+              {/* Highlighted Status */}
+              <p className={`px-2 py-1 inline-block rounded-lg font-semibold p-4 
+  ${booking.status === 'Pending' ? 'text-yellow-500' :
+    booking.status === 'Cancelled' ? 'text-red-500' :
+    booking.status === 'Confirmed' ? 'text-green-500' :
+    booking.status === 'Completed' ? 'text-blue-500' :
+    'text-gray-500'}`}>
+  {booking.status}
+</p>
+
+
+              {/* Time Ago Feature */}
+              <p className="text-gray-500 text-sm italic">Requested {moment(booking.createdAt).fromNow()}</p>
+
               <p className="text-gray-600">Customer: {booking.customerName}</p>
               
               <div className="flex space-x-2 mt-2">
@@ -115,11 +147,18 @@ const ManageBookings = () => {
               </div>
 
               {expandedBooking === booking._id && (
-                <div className="mt-4 p-3 border rounded-lg bg-gray-100">
-                  <h4 className="text-md font-semibold">Customer Details</h4>
-                  <p className="text-gray-600"><strong>Name:</strong> {booking.customerDetails?.name}</p>
-                  <p className="text-gray-600"><strong>Email:</strong> {booking.customerDetails?.email}</p>
-                  <p className="text-gray-600"><strong>Phone:</strong> {booking.customerDetails?.phone}</p>
+                <div>
+                  <div className="mt-4 p-3 border rounded-lg bg-gray-100">
+                    <h4 className="text-md font-semibold">{booking.listingDetails?.type} Details</h4>
+                    <p className="text-gray-600"><strong>Name:</strong> {booking.listingDetails?.name}</p>
+                    <p className="text-gray-600"><strong>Address:</strong> {booking.listingDetails?.address}</p>
+                  </div>
+                  <div className="mt-4 p-3 border rounded-lg bg-gray-100">
+                    <h4 className="text-md font-semibold">Customer Details</h4>
+                    <p className="text-gray-600"><strong>Name:</strong> {booking.customerDetails?.name}</p>
+                    <p className="text-gray-600"><strong>Email:</strong> {booking.customerDetails?.email}</p>
+                    <p className="text-gray-600"><strong>Phone:</strong> {booking.customerDetails?.phone}</p>
+                  </div>
                 </div>
               )}
             </div>

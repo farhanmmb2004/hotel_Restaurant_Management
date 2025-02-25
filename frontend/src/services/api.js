@@ -121,7 +121,6 @@ export const vendorService = {
         }
       },
     getListings: async (vendorId) => {
-      console.log("hello");
         try {
           const response = await api.get(`vendors/listings/${vendorId}`);
           return response.data;
