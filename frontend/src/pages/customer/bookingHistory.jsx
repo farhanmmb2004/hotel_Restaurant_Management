@@ -75,7 +75,7 @@ export const BookingHistory = () => {
               
               <div className="mt-4 pt-4 border-t flex justify-end">
               {booking.status === 'Completed' ? (
-    booking.hasReviewed ? (
+    booking.hasReviewed? (
       <span className="bg-gray-300 text-gray-700 px-4 py-2 rounded text-sm">
         Reviewed ✅
       </span>

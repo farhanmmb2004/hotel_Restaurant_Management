@@ -101,6 +101,7 @@ export const customerService = {
 
   submitReview: async (bookingId, reviewData) => {
     try {
+      console.log(bookingId);
       const response = await api.post(`/users/reviews/${bookingId}`, reviewData);
       return response.data;
     } catch (error) {
