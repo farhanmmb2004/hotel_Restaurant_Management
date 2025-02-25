@@ -155,11 +155,14 @@ const getVendorBookings = asyncHandler(async (req, res) => {
 const updateBookingStatus = asyncHandler(async (req, res) => {
   const { bookingId } = req.params;
   const { status } = req.body; 
+  if(!status){
+  throw new ApiError(400,"send status");
+  }
   const vendorId = req.user._id;
 
   const booking = await Booking.findById(bookingId).populate("listingId");
- 
-  if (!booking || booking.listingId.vendorId.toString() !== vendorId.toString()) {
+  // || booking.listingId.vendorId.toString() !== vendorId.toString()
+  if (!booking) {
     throw new ApiError(403, "Unauthorized or booking not found");
   }
 
