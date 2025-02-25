@@ -131,7 +131,8 @@ const getVendorBookings = asyncHandler(async (req, res) => {
         unitId:1,
         listingId: 1,
         customerId: 1,
-        date: 1,
+        bookingDates: 1,
+        bookingTime
         amount: 1,
         status: 1,
         createdAt: 1,
