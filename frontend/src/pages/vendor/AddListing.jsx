@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import { toast } from 'react-toastify'; // You'll need to import this library
 
 const AddListing = () => {
   const navigate = useNavigate();
@@ -25,10 +26,38 @@ const AddListing = () => {
   };
 
   const handleImageChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      image: e.target.files[0]
-    }));
+    const file = e.target.files[0];
+    
+    if (file) {
+      // Validate file type - only allow image files
+      const allowedTypes = [
+        'image/png',
+        'image/jpeg',
+        'image/jpg',
+        'image/webp',
+      ];
+      
+      if (!allowedTypes.includes(file.type)) {
+        setError('Only image files (PNG, JPEG, JPG, WEBP) are allowed.');
+        toast.error('Only image files (PNG, JPEG, JPG, WEBP) are allowed.');
+        return;
+      }
+      
+      // Validate file size - limit to 2MB
+      if (file.size > 2 * 1024 * 1024) {
+        setError('File size exceeds 2MB.');
+        toast.error('File size exceeds 2MB.');
+        return;
+      }
+      
+      setFormData(prev => ({
+        ...prev,
+        image: file
+      }));
+      
+      // Clear error if validation passes
+      setError(null);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -38,27 +67,29 @@ const AddListing = () => {
 
     try {
       const data = new FormData();
+      console.log(formData);
       if (!formData.name || !formData.address || !formData.description || !formData.pricing) {
         setError("All fields are required.");
+        toast.error("All fields are required.");
         setIsSubmitting(false);
         return;
       }
       
+      // Append all form data to FormData
       data.append("name", formData.name);
       data.append("address", formData.address);
       data.append("description", formData.description);
       data.append("facilities", formData.facilities);
       data.append("pricing", formData.pricing);
       data.append("type", formData.type);
-      if (formData.image) {
-        data.append("image", formData.image);
-      }
+      data.append("image", formData.image);
       
       const response = await api.vendor.createListing(data);
-      alert('Listing created successfully!');
+      toast.success('Listing created successfully!', { autoClose: 10000 });
       navigate(`/vendor/listings/${response.data._id}`);
     } catch (err) {
       setError('Failed to create listing. Please check your information and try again.');
+      toast.error('Failed to create listing. Please check your information and try again.');
       console.error('Create listing error:', err);
     } finally {
       setIsSubmitting(false);
@@ -152,6 +183,9 @@ const AddListing = () => {
             accept="image/*"
             className="w-full p-2 border border-gray-300 rounded-md"
           />
+          <p className="text-xs text-gray-500 mt-1">
+            Accepted formats: PNG, JPEG, JPG, WEBP. Maximum size: 2MB.
+          </p>
         </div>
         
         <button

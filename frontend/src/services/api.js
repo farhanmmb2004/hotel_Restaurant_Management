@@ -1,7 +1,6 @@
 import axios from 'axios';
-
 const BASE_URL = 'https://heliverse-assingment-1.onrender.com/api/v1';
-
+// const BASE_URL = 'http://localhost:8000/api/v1';
 // Create axios instance with default config
 const api = axios.create({
   baseURL: BASE_URL,
@@ -130,16 +129,30 @@ export const vendorService = {
           throw error.response?.data || error;
         }
       },
+  // createListing: async (listingData) => {
+  //   try {
+  //     const response = await api.post('/vendors', listingData);
+  //     return response.data;
+  //   } catch (error) {
+  //       console.error(error)
+  //     throw error.response?.data || error;
+  //   }
+  // },
   createListing: async (listingData) => {
     try {
-      const response = await api.post('/vendors', listingData);
+      // Don't set Content-Type header for FormData uploads
+      const response = await api.post('/vendors', listingData, {
+        headers: {
+          // Override the default Content-Type
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       return response.data;
     } catch (error) {
-        console.error(error)
+      console.error(error);
       throw error.response?.data || error;
     }
   },
-
   updateListing: async (listingId, updateData) => {
     try {
       const response = await api.patch(`vendors/${listingId}`, updateData);
@@ -151,7 +164,7 @@ export const vendorService = {
 
   deleteListing: async (listingId) => {
     try {
-      const response = await api.delete(`/${listingId}`);
+      const response = await api.delete(`vendors/${listingId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
