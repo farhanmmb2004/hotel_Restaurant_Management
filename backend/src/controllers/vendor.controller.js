@@ -155,21 +155,14 @@ const getVendorBookings = asyncHandler(async (req, res) => {
 const updateBookingStatus = asyncHandler(async (req, res) => {
   const { bookingId } = req.params;
   const { status } = req.body; 
-  if(!status){
-  throw new ApiError(400,"send status");
-  }
   const vendorId = req.user._id;
 
   const booking = await Booking.findById(bookingId).populate("listingId");
-  // || booking.listingId.vendorId.toString() !== vendorId.toString()
-  if (!booking) {
+ 
+  if (!booking || booking.listingId.vendorId.toString() !== vendorId.toString()) {
     throw new ApiError(403, "Unauthorized or booking not found");
   }
-  if(status!=='Cancelled'){
-    throw new ApiError(403, status);
-  }
-  console.log(booking);
-  console.log(status);
+
   booking.status = status;
   await booking.save();
 
