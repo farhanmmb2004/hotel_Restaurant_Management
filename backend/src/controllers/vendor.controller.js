@@ -165,7 +165,8 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
   if (!booking) {
     throw new ApiError(403, "Unauthorized or booking not found");
   }
-
+  console.log(booking);
+  console.log(status);
   booking.status = status;
   await booking.save();
 
