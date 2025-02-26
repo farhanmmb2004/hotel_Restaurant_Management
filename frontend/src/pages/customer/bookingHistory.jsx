@@ -55,7 +55,7 @@ export const BookingHistory = () => {
       ) : bookings.length === 0 ? (
         <div className="text-center py-8">
           <p className="mb-4">You don't have any bookings yet.</p>
-          <Link to="/" className="text-blue-600 font-medium">Browse listings</Link>
+          <Link to="/customer/listings" className="text-blue-600 font-medium">Browse listings</Link>
         </div>
       ) : (
         <div className="space-y-4">

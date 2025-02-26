@@ -19,6 +19,7 @@ export const ListingDetails = () => {
       setLoading(true);
       const data = await customerService.getListingDetails(listingId);
       setListing(data.data);
+      console.log(data.data);
       setError(null);
     } catch (err) {
       setError('Failed to load listing details. Please try again later.');
@@ -53,7 +54,7 @@ export const ListingDetails = () => {
             <>
               <div className="mb-6">
                 <button onClick={() => navigate(-1)} className="text-blue-600">
-                  ← Back to Listings
+                  ← Browse Hotel/Restaurent
                 </button>
               </div>
       
@@ -70,10 +71,7 @@ export const ListingDetails = () => {
                 <p className="text-lg text-gray-600 mb-4">{listing.address}</p>
       
                 <div className="flex items-center mb-6">
-                  <span className="text-yellow-500 mr-1">★</span>
-                  <span>{listing.rating}</span>
-                  <span className="mx-2">•</span>
-                  <span>{3} reviews</span>
+                  
                 </div>
       
                 <div className="mb-6 pb-6 border-b">

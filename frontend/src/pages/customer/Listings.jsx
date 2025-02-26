@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import  {customerService}  from '../../services/api';
+import { customerService } from '../../services/api';
 import { Link } from 'react-router-dom';
 
 export const Listings = () => {
@@ -36,10 +36,10 @@ export const Listings = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Available Listings</h1>
+      <h1 className="text-2xl font-bold mb-6">Available Hotels/Restaurant</h1>
       
       <div className="mb-6 p-4 bg-gray-100 rounded">
-        <h2 className="text-lg font-semibold mb-3">Filter Listings</h2>
+        <h2 className="text-lg font-semibold mb-3">Filter Hotels/Restaurent</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm mb-1">Location</label>
@@ -51,17 +51,14 @@ export const Listings = () => {
             />
           </div>
           <div>
-            <label className="block text-sm mb-1">Price Range</label>
-            <select 
-              name="priceRange"
+            <label className="block text-sm mb-1">Max Price</label>
+            <input 
+              type="number" 
+              name="maxPrice"
               className="w-full p-2 border rounded"
               onChange={handleFilterChange}
-            >
-              <option value="">Any Price</option>
-              <option value="budget">Budget</option>
-              <option value="moderate">Moderate</option>
-              <option value="luxury">Luxury</option>
-            </select>
+              placeholder="Enter max price"
+            />
           </div>
           <div>
             <label className="block text-sm mb-1">Type</label>
@@ -71,9 +68,8 @@ export const Listings = () => {
               onChange={handleFilterChange}
             >
               <option value="">All Types</option>
-              <option value="apartment">Apartment</option>
-              <option value="house">House</option>
-              <option value="villa">Villa</option>
+              <option value="Hotel">Hotel</option>
+              <option value="Restaurant">Restaurant</option>
             </select>
           </div>
         </div>
@@ -112,5 +108,3 @@ export const Listings = () => {
     </div>
   );
 };
-
-// ListingDetailPage.js
