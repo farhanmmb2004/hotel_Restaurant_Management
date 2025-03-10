@@ -1,4 +1,4 @@
-# User  Routes API Documentation
+# User  Routes APIs Documentation
 
 ## Base URL
 ```
