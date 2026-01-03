@@ -113,6 +113,23 @@ const Login = () => {
 
         {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
 
+        {/* Test Credentials */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <h3 className="text-sm font-semibold text-blue-900 mb-3 text-center">Test Credentials</h3>
+          <div className="space-y-2 text-xs">
+            <div className="bg-white rounded p-2">
+              <p className="font-semibold text-gray-700">Customer Account:</p>
+              <p className="text-gray-600">Email: <span className="font-mono">customer@hotelbooking.com</span></p>
+              <p className="text-gray-600">Password: <span className="font-mono">Password@2025</span></p>
+            </div>
+            <div className="bg-white rounded p-2">
+              <p className="font-semibold text-gray-700">Vendor/Partner Account:</p>
+              <p className="text-gray-600">Email: <span className="font-mono">vendor@hotelbooking.com</span></p>
+              <p className="text-gray-600">Password: <span className="font-mono">Password@2025</span></p>
+            </div>
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-gray-700 font-medium mb-1">Email</label>
