@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { customerService } from '../../services/api';
 import { Navigate } from 'react-router-dom';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
+import Card from '../../components/Card';
+import Button from '../../components/Button';
+import LoadingSpinner from '../../components/LoadingSpinner';
 export const Booking = () => {
   const { listingId, unitId } = useParams();
   const navigate = useNavigate();
@@ -65,137 +70,166 @@ export const Booking = () => {
   };
 
   if (loading && (!listing || !unit)) {
-    return <div className="container mx-auto p-4 text-center">Loading booking details...</div>;
+    return <LoadingSpinner fullScreen />;
   }
   if (booked) {
     return <Navigate to="/customer/booking/history" />;
   }
   if (error) {
     return (
-      <div className="container mx-auto p-4">
-        <div className="p-4 bg-red-100 text-red-700 rounded">{error}</div>
-        <div className="mt-4">
-          <button 
-            onClick={() => navigate(-1)}
-            className="text-blue-600"
-          >
-            ← Back to Listing
-          </button>
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Card>
+            <div className="text-center">
+              <div className="text-4xl mb-4">⚠️</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Booking Error</h3>
+              <div className="p-4 bg-red-50 border-2 border-red-200 rounded-lg mb-4">
+                <p className="text-red-800">{error}</p>
+              </div>
+              <Button variant="secondary" onClick={() => navigate(-1)}>← Back to Listing</Button>
+            </div>
+          </Card>
         </div>
+        <Footer />
       </div>
     );
   }
 
   if (!listing || !unit) {
     return (
-      <div className="container mx-auto p-4 text-center">
-        Listing or unit not found
-        <div className="mt-4">
-          <button 
-            onClick={() => navigate('/listings')}
-            className="text-blue-600"
-          >
-            Browse Listings
-          </button>
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Card className="text-center py-12">
+            <div className="text-6xl mb-4">🏨</div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Not Found</h3>
+            <p className="text-gray-600 mb-6">The listing or unit you're looking for doesn't exist.</p>
+            <Button variant="primary" onClick={() => navigate('/customer/listings')}>Browse Listings</Button>
+          </Card>
         </div>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl">
-      <div className="mb-6">
-        <button 
-          onClick={() => navigate(-1)}
-          className="text-blue-600"
-        >
-          ← Back to Listing
-        </button>
-      </div>
-
-      <h1 className="text-2xl font-bold mb-6">Book Your Stay</h1>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
-          <div className="bg-white p-6 border rounded shadow">
-            <h2 className="text-xl font-semibold mb-4">Booking Details</h2>
-            
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">Booking Date</label>
-                <input
-                  type="date"
-                  name="bookingDate"
-                  value={bookingDetails.bookingDate}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded"
-                  required
-                />
-              </div>
-              
-              <div className="mb-6">
-                <label className="block text-sm font-medium mb-1">Booking Time</label>
-                <input
-                  type="time"
-                  name="bookingTime"
-                  value={bookingDetails.bookingTime}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded"
-                  required
-                />
-              </div>
-              
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 text-white py-3 rounded font-medium hover:bg-blue-700 disabled:bg-blue-300"
-              >
-                {loading ? 'Processing...' : 'Confirm Booking'}
-              </button>
-            </form>
-          </div>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6">
+          <Button variant="ghost" onClick={() => navigate(-1)}>← Back to Listing</Button>
         </div>
-        
-        <div>
-          <div className="bg-white p-6 border rounded shadow">
-            <h2 className="text-xl font-semibold mb-4">Unit Details</h2>
-            
-            <div className="mb-4">
+
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Complete Your Booking 📅</h1>
+          <p className="text-gray-600">Just a few more details to confirm your reservation</p>
+        </div>
+      
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div>
+            <Card>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Booking Details</h2>
+              
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Check-in Date *</label>
+                  <input
+                    type="date"
+                    name="bookingDate"
+                    value={bookingDetails.bookingDate}
+                    onChange={handleInputChange}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Check-in Time *</label>
+                  <input
+                    type="time"
+                    name="bookingTime"
+                    value={bookingDetails.bookingTime}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    required
+                  />
+                </div>
+                
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  className="w-full"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className="flex items-center justify-center">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Processing...
+                    </span>
+                  ) : (
+                    '✓ Confirm Booking'
+                  )}
+                </Button>
+              </form>
+            </Card>
+          </div>
+          
+          <div>
+            <Card>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Reservation Summary</h2>
+              
               {listing.image ? (
-                <img
-                  src={listing.image}
-                  alt={listing.name}
-                  className="w-full h-48 object-cover rounded"
-                />
+                <div className="aspect-video rounded-lg mb-6 overflow-hidden">
+                  <img
+                    src={listing.image}
+                    alt={listing.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               ) : (
-                <div className="w-full h-48 bg-gray-200 flex items-center justify-center rounded">
-                  <span>No image available</span>
+                <div className="aspect-video bg-gradient-to-br from-purple-100 to-blue-100 rounded-lg mb-6 flex items-center justify-center text-4xl">
+                  {listing.type === 'Hotel' ? '🏨' : '🍽️'}
                 </div>
               )}
-            </div>
-            
-            <h3 className="text-lg font-bold mb-2">{unit.name}</h3>
-            <p className="text-gray-700 mb-4">{unit.description}</p>
-            
-            <div className="text-sm space-y-2">
-              <p><span className="font-medium">Location:</span> {listing.location}</p>
-              <p><span className="font-medium">Price:</span> ${unit.price}/night</p>
-              <p><span className="font-medium">Capacity:</span> {unit.capacity || 'N/A'} guests</p>
-              <p><span className="font-medium">Size:</span> {unit.size || 'N/A'}</p>
-            </div>
-            
-            <div className="mt-6 pt-6 border-t">
-              <h3 className="font-medium mb-2">Property Amenities</h3>
-              <div className="grid grid-cols-2 gap-2">
-              {listing.facilities &&
-              listing.facilities.split(",").map((facility, index) => (
-               <div key={index} className="flex items-center">
-               <span>✓</span>
-               <span className="ml-2">{facility.trim()}</span>
-               </div>
-  ))}
+              
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{unit.name || unit.type}</h3>
+              <p className="text-gray-600 mb-6">{listing.address}</p>
+              
+              <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg p-4 mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-gray-700 font-medium">💰 Price</span>
+                  <span className="text-2xl font-bold text-purple-600">${unit.price}</span>
+                </div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-gray-700 font-medium">👥 Capacity</span>
+                  <span className="text-gray-900 font-semibold">{unit.capacity || 2} guests</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-700 font-medium">🏷️ Type</span>
+                  <span className="text-gray-900 font-semibold">{unit.type}</span>
+                </div>
               </div>
-            </div>
+              
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 mb-3">✨ Property Amenities</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {listing.facilities &&
+                  listing.facilities.split(",").map((facility, index) => (
+                    <div key={index} className="flex items-center text-gray-700">
+                      <span className="text-green-500 mr-2">✓</span>
+                      <span>{facility.trim()}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
           </div>
         </div>
       </div>

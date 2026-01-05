@@ -1,6 +1,6 @@
 import axios from 'axios';
 const BASE_URL = 'https://heliverse-assingment-1.onrender.com/api/v1';
-// const BASE_URL = 'http://localhost:8000/api/v1';
+// const BASE_URL = 'http://localhost:5000/api';
 // Create axios instance with default config
 const api = axios.create({
   baseURL: BASE_URL,

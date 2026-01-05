@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { customerService } from '../../services/api';
 import { Link } from 'react-router-dom';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
+import Card from '../../components/Card';
+import Button from '../../components/Button';
+import Badge from '../../components/Badge';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import EmptyState from '../../components/EmptyState';
 
 export const BookingHistory = () => {
   const [bookings, setBookings] = useState([]);
@@ -45,75 +52,108 @@ export const BookingHistory = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Your Booking History</h1>
-
-      {error && <div className="p-4 mb-4 bg-red-100 text-red-700 rounded">{error}</div>}
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
       
-      {loading ? (
-        <div className="text-center py-8">Loading your bookings...</div>
-      ) : bookings.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="mb-4">You don't have any bookings yet.</p>
-          <Link to="/customer/listings" className="text-blue-600 font-medium">Browse listings</Link>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+            Booking History 📋
+          </h1>
+          <p className="text-gray-600">View and manage all your past and upcoming bookings</p>
         </div>
-      ) : (
-        <div className="space-y-4">
-          {bookings.map(booking => (
-            <div key={booking.id} className="border rounded p-4 shadow">
-              
-              <div className="flex flex-col md:flex-row justify-between">
-                <div>
-                  <h3 className="font-bold text-lg mb-1">{booking.listingData.name}</h3>
-                  <p className="text-gray-600">{booking.listingData.address}</p>
-                  <div className="mt-2">
-                    <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                      {booking.status}
-                    </span>
-                    <span className="ml-2 text-gray-500 text-sm">
-                      {booking.status === 'Pending' 
-                        ? `Pending from ${timeAgo(booking.updatedAt)}` 
-                        : timeAgo(booking.updatedAt)}
-                    </span>
+
+        {error && (
+          <div className="mb-6 bg-red-50 border-2 border-red-200 rounded-lg p-4">
+            <p className="text-red-800">{error}</p>
+          </div>
+        )}
+      
+        {loading ? (
+          <LoadingSpinner fullScreen />
+        ) : bookings.length === 0 ? (
+          <EmptyState
+            icon="📅"
+            title="No Bookings Yet"
+            description="You haven't made any bookings yet. Start exploring properties to make your first reservation!"
+            actionLabel="Browse Listings"
+            onAction={() => window.location.href = '/customer/listings'}
+          />
+        ) : (
+          <div className="space-y-6">
+            {bookings.map(booking => (
+              <Card key={booking.id}>
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <h3 className="text-xl font-bold text-gray-900">{booking.listingData.name}</h3>
+                      <Badge 
+                        variant={
+                          booking.status === 'Pending' ? 'warning' :
+                          booking.status === 'Confirmed' ? 'success' :
+                          booking.status === 'Completed' ? 'primary' :
+                          booking.status === 'Cancelled' ? 'danger' :
+                          'secondary'
+                        }
+                      >
+                        {booking.status}
+                      </Badge>
+                    </div>
+                    
+                    <p className="text-gray-600 mb-2">{booking.listingData.address}</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <span>📅</span>
+                        <span><strong>Check-in:</strong> {formatDate(booking.bookingDates)}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <span>🕐</span>
+                        <span><strong>Time:</strong> {booking.bookingTime}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <span>💰</span>
+                        <span><strong>Price:</strong> ${booking.unitData.price}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-500 text-xs">
+                        <span>🕒</span>
+                        <span>
+                          {booking.status === 'Pending' 
+                            ? `Pending from ${timeAgo(booking.updatedAt)}` 
+                            : `Updated ${timeAgo(booking.updatedAt)}`}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    {booking.status === 'Completed' && (
+                      booking.hasReviewed ? (
+                        <Badge variant="success" className="flex items-center justify-center">
+                          Reviewed ✅
+                        </Badge>
+                      ) : (
+                        <Link to={`/customer/booking/review/${booking._id}`}>
+                          <Button variant="accent" size="sm" className="w-full sm:w-auto">
+                            ⭐ Leave Review
+                          </Button>
+                        </Link>
+                      )
+                    )}
+                    <Link to={`/customer/listings/${booking.listingId}`}>
+                      <Button variant="primary" size="sm" className="w-full sm:w-auto">
+                        👁️ View Details
+                      </Button>
+                    </Link>
                   </div>
                 </div>
-                <div className="mt-4 md:mt-0 text-right">
-                  <p className="text-sm">
-                    <span className="font-medium">Check-in:</span> {formatDate(booking.bookingDates)}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-medium">Check-in-time:</span> {booking.bookingTime}
-                  </p>
-                  <p className="font-bold mt-2">${booking.unitData.price}</p>
-                </div>
-              </div>
-              
-              <div className="mt-4 pt-4 border-t flex justify-end">
-                {booking.status === 'Completed' ? (
-                  booking.hasReviewed ? (
-                    <span className="bg-gray-300 text-gray-700 px-4 py-2 rounded text-sm">
-                      Reviewed ✅
-                    </span>
-                  ) : (
-                    <Link 
-                      to={`/customer/booking/review/${booking._id}`}
-                      className="bg-green-600 text-white px-4 py-2 rounded text-sm"
-                    >
-                      Leave Review
-                    </Link>
-                  )
-                ) : null}
-                <Link 
-                  to={`/customer/listings/${booking.listingId}`}
-                  className="bg-blue-600 text-white px-4 py-2 rounded text-sm ml-2"
-                >
-                  View Details
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <Footer />
     </div>
   );
 };

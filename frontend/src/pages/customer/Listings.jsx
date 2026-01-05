@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { customerService } from '../../services/api';
 import { Link } from 'react-router-dom';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
+import Card from '../../components/Card';
+import Button from '../../components/Button';
+import Badge from '../../components/Badge';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import EmptyState from '../../components/EmptyState';
 
 export const Listings = () => {
   const [listings, setListings] = useState([]);
@@ -35,76 +42,117 @@ export const Listings = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Available Hotels/Restaurant</h1>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
       
-      <div className="mb-6 p-4 bg-gray-100 rounded">
-        <h2 className="text-lg font-semibold mb-3">Filter Hotels/Restaurent</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm mb-1">Location</label>
-            <input 
-              type="text" 
-              name="location"
-              className="w-full p-2 border rounded"
-              onChange={handleFilterChange}
-            />
-          </div>
-          <div>
-            <label className="block text-sm mb-1">Max Price</label>
-            <input 
-              type="number" 
-              name="maxPrice"
-              className="w-full p-2 border rounded"
-              onChange={handleFilterChange}
-              placeholder="Enter max price"
-            />
-          </div>
-          <div>
-            <label className="block text-sm mb-1">Type</label>
-            <select 
-              name="type"
-              className="w-full p-2 border rounded"
-              onChange={handleFilterChange}
-            >
-              <option value="">All Types</option>
-              <option value="Hotel">Hotel</option>
-              <option value="Restaurant">Restaurant</option>
-            </select>
-          </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+            Explore Properties 🏨
+          </h1>
+          <p className="text-gray-600">Discover amazing hotels and restaurants for your next visit</p>
         </div>
+      
+        <Card className="mb-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">🔍 Filter Your Search</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">📍 Location</label>
+              <input 
+                type="text" 
+                name="location"
+                placeholder="Enter city or area"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                onChange={handleFilterChange}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">💰 Max Price</label>
+              <input 
+                type="number" 
+                name="maxPrice"
+                placeholder="Enter max price"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                onChange={handleFilterChange}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">🏷️ Property Type</label>
+              <select 
+                name="type"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                onChange={handleFilterChange}
+              >
+                <option value="">All Types</option>
+                <option value="Hotel">🏨 Hotel</option>
+                <option value="Restaurant">🍽️ Restaurant</option>
+              </select>
+            </div>
+          </div>
+        </Card>
+
+        {error && (
+          <div className="mb-6 bg-red-50 border-2 border-red-200 rounded-lg p-4">
+            <p className="text-red-800">{error}</p>
+          </div>
+        )}
+      
+        {loading ? (
+          <LoadingSpinner fullScreen />
+        ) : listings.length === 0 ? (
+          <EmptyState
+            icon="🔍"
+            title="No Properties Found"
+            description="No listings match your search criteria. Try adjusting your filters."
+          />
+        ) : (
+          <>
+            <div className="mb-4 text-gray-600">
+              Found <span className="font-bold text-gray-900">{listings.length}</span> {listings.length === 1 ? 'property' : 'properties'}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {listings.map(listing => (
+                <Card key={listing._id} className="cursor-pointer" onClick={() => window.location.href = `/customer/listings/${listing._id}`}>
+                  {listing.image ? (
+                    <div className="aspect-video rounded-lg mb-4 overflow-hidden">
+                      <img 
+                        src={listing.image} 
+                        alt={listing.name}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  ) : (
+                    <div className="aspect-video bg-gradient-to-br from-purple-100 to-blue-100 rounded-lg mb-4 flex items-center justify-center text-4xl">
+                      {listing.type === 'Hotel' ? '🏨' : '🍽️'}
+                    </div>
+                  )}
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-bold text-lg text-gray-900 flex-1">{listing.name}</h3>
+                    <Badge variant={listing.type === 'Hotel' ? 'primary' : 'accent'}>
+                      {listing.type}
+                    </Badge>
+                  </div>
+                  <p className="text-gray-600 text-sm mb-3 line-clamp-1">📍 {listing.address}</p>
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                    <div>
+                      <span className="text-2xl font-bold text-purple-600">${listing.pricing}</span>
+                      <span className="text-sm text-gray-500">/night</span>
+                    </div>
+                    <Button variant="primary" size="sm" onClick={(e) => {
+                      e.stopPropagation();
+                      window.location.href = `/customer/listings/${listing._id}`;
+                    }}>
+                      View Details →
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
-      {error && <div className="p-4 mb-4 bg-red-100 text-red-700 rounded">{error}</div>}
-      
-      {loading ? (
-        <div className="text-center py-8">Loading listings...</div>
-      ) : listings.length === 0 ? (
-        <div className="text-center py-8">No listings found matching your criteria.</div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {listings.map(listing => (
-            <div key={listing._id} className="border rounded overflow-hidden shadow">
-              {listing.image && (
-                <img src={listing.image} alt={listing.title} className="w-full h-48 object-cover" />
-              )}
-              <div className="p-4">
-                <h3 className="font-bold text-lg">{listing.name}</h3>
-                <p className="text-gray-600">{listing.address}</p>
-                <p className="text-gray-800 mt-2">${listing.pricing}/night</p>
-                <div className="mt-4">
-                  <Link 
-                    to={`/customer/listings/${listing._id}`}
-                    className="bg-blue-600 text-white px-4 py-2 rounded inline-block"
-                  >
-                    View Details
-                  </Link>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      <Footer />
     </div>
   );
 };
