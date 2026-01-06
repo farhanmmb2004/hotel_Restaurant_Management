@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { customerService } from '../../services/api';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
 
@@ -46,10 +44,7 @@ export const Review = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
             Leave a Review ⭐
@@ -139,9 +134,6 @@ export const Review = () => {
             </div>
           </form>
         </Card>
-      </div>
-
-      <Footer />
     </div>
   );
 };

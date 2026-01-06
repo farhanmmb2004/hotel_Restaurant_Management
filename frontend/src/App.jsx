@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { PrivateRoute } from './components/PrivateRoute.jsx';
+import CustomerLayout from './components/CustomerLayout.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -16,6 +17,7 @@ import { ListingDetails } from './pages/customer/ListingDetails.jsx';
 import { BookingHistory } from './pages/customer/bookingHistory.jsx';
 import { Booking } from './pages/customer/Booking.jsx';
 import { Review } from './pages/customer/Review.jsx';
+import Favorites from './pages/customer/Favorites.jsx';
 
 // Vendor
 import VendorDashboard from './pages/vendor/Dashboard';
@@ -38,12 +40,13 @@ function App() {
             <Route path="/unauthorized" element={<Unauthorized />} />
 
             {/* Customer Routes */}
-            <Route path="/customer/dashboard" element={<PrivateRoute allowedRoles={['customer']}><CustomerDashboard /></PrivateRoute>} />
-            <Route path="/customer/listings" element={<PrivateRoute allowedRoles={['customer']}><Listings /></PrivateRoute>} />
-            <Route path="/customer/listings/:listingId" element={<PrivateRoute allowedRoles={['customer']}><ListingDetails /></PrivateRoute>} />
-            <Route path="/customer/booking/:listingId/:unitId" element={<PrivateRoute allowedRoles={['customer']}><Booking /></PrivateRoute>} />
-            <Route path="/customer/booking/history" element={<PrivateRoute allowedRoles={['customer']}><BookingHistory /></PrivateRoute>} />
-            <Route path="/customer/booking/review/:bookingId" element={<PrivateRoute allowedRoles={['customer']}><Review /></PrivateRoute>} />
+            <Route path="/customer/dashboard" element={<PrivateRoute allowedRoles={['customer']}><CustomerLayout><CustomerDashboard /></CustomerLayout></PrivateRoute>} />
+            <Route path="/customer/listings" element={<PrivateRoute allowedRoles={['customer']}><CustomerLayout><Listings /></CustomerLayout></PrivateRoute>} />
+            <Route path="/customer/listings/:listingId" element={<PrivateRoute allowedRoles={['customer']}><CustomerLayout><ListingDetails /></CustomerLayout></PrivateRoute>} />
+            <Route path="/customer/booking/:listingId/:unitId" element={<PrivateRoute allowedRoles={['customer']}><CustomerLayout><Booking /></CustomerLayout></PrivateRoute>} />
+            <Route path="/customer/booking/history" element={<PrivateRoute allowedRoles={['customer']}><CustomerLayout><BookingHistory /></CustomerLayout></PrivateRoute>} />
+            <Route path="/customer/booking/review/:bookingId" element={<PrivateRoute allowedRoles={['customer']}><CustomerLayout><Review /></CustomerLayout></PrivateRoute>} />
+            <Route path="/customer/favorites" element={<PrivateRoute allowedRoles={['customer']}><CustomerLayout><Favorites /></CustomerLayout></PrivateRoute>} />
 
             {/* Vendor Routes */}
             <Route path="/vendor/dashboard" element={<PrivateRoute allowedRoles={['vendor']}><VendorDashboard /></PrivateRoute>} />

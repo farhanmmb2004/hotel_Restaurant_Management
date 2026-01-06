@@ -1,6 +1,6 @@
 import axios from 'axios';
 const BASE_URL = 'https://heliverse-assingment-1.onrender.com/api/v1';
-// const BASE_URL = 'http://localhost:5000/api';
+// const BASE_URL = 'http://localhost:8000/api/v1';
 // Create axios instance with default config
 const api = axios.create({
   baseURL: BASE_URL,
@@ -102,6 +102,42 @@ export const customerService = {
     try {
       console.log(bookingId);
       const response = await api.post(`/users/reviews/${bookingId}`, reviewData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  getDashboard: async () => {
+    try {
+      const response = await api.get('/users/dashboard');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  getFavorites: async () => {
+    try {
+      const response = await api.get('/users/favorites/bookings');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  addToFavorites: async (unitId) => {
+    try {
+      const response = await api.post(`/users/favorites/${unitId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  removeFromFavorites: async (unitId) => {
+    try {
+      const response = await api.delete(`/users/favorites/${unitId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;

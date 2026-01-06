@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { customerService } from '../../services/api';
 import { Link } from 'react-router-dom';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
 import Badge from '../../components/Badge';
@@ -13,6 +11,7 @@ export const BookingHistory = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [addingToFavorite, setAddingToFavorite] = useState(null);
 
   useEffect(() => {
     fetchBookings();
@@ -51,11 +50,26 @@ export const BookingHistory = () => {
     return `${days} days ago`;
   };
 
+  const handleAddToFavorites = async (unitId, bookingId) => {
+    try {
+      setAddingToFavorite(bookingId);
+      await customerService.addToFavorites(unitId);
+      // Update the booking's isFavorite status
+      setBookings(prev => prev.map(booking => 
+        booking._id === bookingId 
+          ? { ...booking, isFavorite: true }
+          : booking
+      ));
+    } catch (err) {
+      console.error('Failed to add to favorites:', err);
+      setError('Failed to add to favorites. Please try again.');
+    } finally {
+      setAddingToFavorite(null);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
             Booking History 📋
@@ -70,7 +84,31 @@ export const BookingHistory = () => {
         )}
       
         {loading ? (
-          <LoadingSpinner fullScreen />
+          <div className="space-y-6">
+            {[1, 2, 3, 4].map((i) => (
+              <Card key={i} className="animate-pulse">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="h-7 bg-gray-200 rounded w-48"></div>
+                      <div className="h-6 bg-gray-200 rounded w-20"></div>
+                    </div>
+                    <div className="h-4 bg-gray-200 rounded w-64 mb-2"></div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <div className="h-4 bg-gray-200 rounded w-48"></div>
+                      <div className="h-4 bg-gray-200 rounded w-32"></div>
+                      <div className="h-4 bg-gray-200 rounded w-32"></div>
+                      <div className="h-4 bg-gray-200 rounded w-40"></div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <div className="h-9 bg-gray-200 rounded w-32"></div>
+                    <div className="h-9 bg-gray-200 rounded w-32"></div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
         ) : bookings.length === 0 ? (
           <EmptyState
             icon="📅"
@@ -127,6 +165,21 @@ export const BookingHistory = () => {
                   </div>
                   
                   <div className="flex flex-col sm:flex-row gap-2">
+                    {!booking.isFavorite ? (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full sm:w-auto"
+                        onClick={() => handleAddToFavorites(booking.unitId, booking._id)}
+                        disabled={addingToFavorite === booking._id}
+                      >
+                        {addingToFavorite === booking._id ? '...' : '❤️ Add to Favorites'}
+                      </Button>
+                    ) : (
+                      <Badge variant="danger" className="flex items-center justify-center">
+                        ❤️ Favorited
+                      </Badge>
+                    )}
                     {booking.status === 'Completed' && (
                       booking.hasReviewed ? (
                         <Badge variant="success" className="flex items-center justify-center">
@@ -151,9 +204,6 @@ export const BookingHistory = () => {
             ))}
           </div>
         )}
-      </div>
-
-      <Footer />
     </div>
   );
 };

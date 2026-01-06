@@ -26,6 +26,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    favorites:{
+      type:[Schema.Types.ObjectId],
+      ref:"Unit"
+    }
+    ,
     refreshToken:{
         type:"String"
     }

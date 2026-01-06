@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { customerService } from '../../services/api';
 import { Link } from 'react-router-dom';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
 import Badge from '../../components/Badge';
@@ -41,31 +39,28 @@ export const ListingDetails = () => {
   };
 
   if (loading && !listing) {
-    return <LoadingSpinner fullScreen />;
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   if (!listing) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <EmptyState
-            icon="🔍"
-            title="Listing Not Found"
-            description="The property you're looking for doesn't exist or has been removed."
-            actionLabel="Browse All Listings"
-            onAction={() => navigate('/customer/listings')}
-          />
-        </div>
-        <Footer />
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <EmptyState
+          icon="🔍"
+          title="Listing Not Found"
+          description="The property you're looking for doesn't exist or has been removed."
+          actionLabel="Browse All Listings"
+          onAction={() => navigate('/customer/listings')}
+        />
       </div>
     );
   }
     return (
-        <div className="min-h-screen bg-gray-50">
-          <Navbar />
-          
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {error && (
               <div className="mb-6 bg-red-50 border-2 border-red-200 rounded-lg p-4">
                 <p className="text-red-800">{error}</p>
@@ -229,10 +224,7 @@ export const ListingDetails = () => {
                 </Card>
               </div>
             </div>
-          </div>
-
-          <Footer />
-        </div>
+      </div>
       );
     }      
       

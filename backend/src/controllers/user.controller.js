@@ -7,6 +7,7 @@ import { Booking } from "../models/booking.model.js";
 import { Unit } from "../models/unit.model.js";
 import { Review } from "../models/reveiw.model.js";
 import mongoose from "mongoose";
+import { act } from "react";
 const generateAccessAndRefreshToken=async(userId)=>{
     try {
         const user=await User.findById(userId);
@@ -224,11 +225,6 @@ const bookListingUnit = asyncHandler(async (req, res) => {
     res.status(201).json(new ApiResponse(201, newBooking, "Booking successful, pending approval"));
 });
 
-// const bookingHistory = asyncHandler(async (req, res) => {
-//     const bookings = await Booking.find({ customerId: req.user._id }).populate("listingId unitId");
-  
-//     res.status(200).json(new ApiResponse(200, bookings, "Booking history retrieved successfully"));
-//   });
 const bookingHistory = asyncHandler(async (req, res) => {
     // Using aggregation pipeline to join bookings with reviews
     const bookings = await Booking.aggregate([
@@ -289,16 +285,47 @@ const bookingHistory = asyncHandler(async (req, res) => {
           as: "reviewData"
         }
       },
+      {
+        $lookup: {
+          from: "users",
+          localField: "vendorId",
+          foreignField: "_id",
+          as: "vendorData"
+        }
+      },
+      // Lookup current user's data to check favorites
+      {
+        $lookup: {
+          from: "users",
+          localField: "customerId",
+          foreignField: "_id",
+          as: "currentUserData"
+        }
+      },
+      {
+        $unwind: {
+          path: "$currentUserData",
+          preserveNullAndEmptyArrays: true
+        }
+      },
       // Add the hasReviewed field based on whether the review exists
       {
         $addFields: {
-          hasReviewed: { $gt: [{ $size: "$reviewData" }, 0] }
+          hasReviewed: { $gt: [{ $size: "$reviewData" }, 0] },
+          isFavorite: {
+            $cond: {
+              if: { $in: ["$unitId", { $ifNull: ["$currentUserData.favorites", []] }] },
+              then: true,
+              else: false
+            }
+          }
         }
       },
-      // Remove the reviewData array from the final results
+      // Remove the reviewData and currentUserData arrays from the final results
       {
         $project: {
-          reviewData: 0
+          reviewData: 0,
+          currentUserData: 0
         }
       },
       // Sort by creation date in descending order (most recent first)
@@ -338,6 +365,104 @@ const writeReview = asyncHandler(async (req, res) => {
   
     res.status(201).json(new ApiResponse(201, newReview, "Review submitted successfully"));
   });
+const TogglefavoriteUnits=asyncHandler(async(req,res)=>{
+    const{unitId}=req.params;
+    if(!unitId){
+       throw new ApiError(400,"unitId is required");
+    }
+    const unit=await Unit.findById(unitId);
+    if(!unit){
+         throw new ApiError(404,"unit not found");
+    }
+    const user=await User.findById(req.user._id);
+    if(user.favorites.includes(unitId)){
+        user.favorites.pull(unitId);
+        await user.save({validateBeforeSave:false});
+        return res.status(200).json(new ApiResponse(200,{},"unit removed from favorites"));
+    }
+    user.favorites.push(unitId);
+    await user.save()
+    return res.status(200).json(new ApiResponse(200,{},"unit added to favorites"))
+})
+const favoritesBooking=asyncHandler(async(req,res)=>{
+    const userId=req.user._id;
+    const user=await User.findById(userId);
+
+    const favoriteUnits=await Unit.aggregate([
+      {$match:{
+        _id:{$in:user.favorites}
+      }},
+      {
+       $lookup:{
+        from:"listings",
+        foreignField:"_id",
+        localField:"listingId",
+        as:"listingDetails"
+       }
+      },
+    //   {
+    //     $project:{
+    //       _id:1,
+    //       type:1,
+
+    //   }
+    // }
+    ])
+    return res.status(200).json(new ApiResponse(200,favoriteUnits,"favorite units fetched successfully"))
+  });
+const customerDashboard=asyncHandler(async(req,res)=>{
+    const userId=req.user._id;
+    const data=await User.aggregate([
+        { $match: {_id:new mongoose.Types.ObjectId(userId)}},
+        {
+          $lookup:{
+            from:"bookings",
+            foreignField:"customerId",
+            localField:"_id",
+            as:"bookings"
+          }
+        },
+        {
+          $addFields:{
+            totalBookings:{$size:"$bookings"},
+            activeBookings:{$size:{
+              $filter:{
+                input:"$bookings",  
+                as:"booking",
+                cond:{ $in:["$$booking.status",["Pending","Confirmed"]]}  
+          }
+        }}
+      }
+        },
+        {
+          $unwind:"$bookings"
+        },
+      {
+          $lookup:{
+            from:"reviews",
+            foreignField:"customerId",
+            localField:"_id",
+            as:"reviews"
+          }
+        
+        },{
+          $addFields:{
+            totalReviews:{$size:"$reviews"}
+          }
+        },
+        {
+        $project:{
+          name:1,
+          email:1,
+          totalBookings:1,
+          activeBookings:1,
+          totalReviews:1,
+          favorites:{$size:"$favorites"}
+        }
+      }
+    ])
+    return res.status(200).json(new ApiResponse(200,data[0],"customer dashboard data"))
+});
 
     export { registerUser,
          loginUser,logoutUser,
@@ -345,5 +470,8 @@ const writeReview = asyncHandler(async (req, res) => {
          writeReview,
          bookingHistory,
          bookListingUnit,
-         viewListingDetails
+         viewListingDetails,
+          TogglefavoriteUnits,
+          customerDashboard,
+          favoritesBooking
          };

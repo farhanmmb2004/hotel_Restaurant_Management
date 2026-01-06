@@ -5,7 +5,12 @@ import { browseListings,
     bookingHistory,
     writeReview,
      registerUser ,
-     loginUser,logoutUser} from "../controllers/user.controller.js";
+     loginUser,
+     logoutUser,
+     TogglefavoriteUnits,
+        customerDashboard,
+        favoritesBooking
+    } from "../controllers/user.controller.js";
 import { verifyToken } from "../middleware/auth.middleware.js";
 const router=Router();
 router.route("/register").post(registerUser);
@@ -15,5 +20,8 @@ router.get("/listings", browseListings);
 router.get("/listings/:listingId", viewListingDetails); 
 router.post("/bookings/:listingId/:unitId", verifyToken, bookListingUnit);
 router.get("/bookings/history", verifyToken, bookingHistory); 
+router.post("/favorites/:unitId", verifyToken, TogglefavoriteUnits);
 router.post("/reviews/:bookingId", verifyToken, writeReview);
+router.get("/dashboard", verifyToken, customerDashboard);
+router.get("/favorites/bookings",verifyToken,favoritesBooking);
 export default router

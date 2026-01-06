@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { customerService } from '../../services/api';
 import { Navigate } from 'react-router-dom';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -70,54 +68,43 @@ export const Booking = () => {
   };
 
   if (loading && (!listing || !unit)) {
-    return <LoadingSpinner fullScreen />;
+    return <LoadingSpinner />;
   }
   if (booked) {
     return <Navigate to="/customer/booking/history" />;
   }
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Card>
-            <div className="text-center">
-              <div className="text-4xl mb-4">⚠️</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Booking Error</h3>
-              <div className="p-4 bg-red-50 border-2 border-red-200 rounded-lg mb-4">
-                <p className="text-red-800">{error}</p>
-              </div>
-              <Button variant="secondary" onClick={() => navigate(-1)}>← Back to Listing</Button>
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Card>
+          <div className="text-center">
+            <div className="text-4xl mb-4">⚠️</div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Booking Error</h3>
+            <div className="p-4 bg-red-50 border-2 border-red-200 rounded-lg mb-4">
+              <p className="text-red-800">{error}</p>
             </div>
-          </Card>
-        </div>
-        <Footer />
+            <Button variant="secondary" onClick={() => navigate(-1)}>← Back to Listing</Button>
+          </div>
+        </Card>
       </div>
     );
   }
 
   if (!listing || !unit) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Card className="text-center py-12">
-            <div className="text-6xl mb-4">🏨</div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Not Found</h3>
-            <p className="text-gray-600 mb-6">The listing or unit you're looking for doesn't exist.</p>
-            <Button variant="primary" onClick={() => navigate('/customer/listings')}>Browse Listings</Button>
-          </Card>
-        </div>
-        <Footer />
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Card className="text-center py-12">
+          <div className="text-6xl mb-4">🏨</div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Not Found</h3>
+          <p className="text-gray-600 mb-6">The listing or unit you're looking for doesn't exist.</p>
+          <Button variant="primary" onClick={() => navigate('/customer/listings')}>Browse Listings</Button>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
           <Button variant="ghost" onClick={() => navigate(-1)}>← Back to Listing</Button>
         </div>
@@ -232,7 +219,6 @@ export const Booking = () => {
             </Card>
           </div>
         </div>
-      </div>
     </div>
   );
 };

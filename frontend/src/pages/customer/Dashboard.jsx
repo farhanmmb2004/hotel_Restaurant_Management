@@ -2,22 +2,31 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { customerService } from '../../services/api.js';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 const CustomerDashboard = () => {
   const { user } = useAuth();
-  const { getListings } = customerService;
+  const { getListings, getDashboard } = customerService;
   const [recentListings, setRecentListings] = useState([]);
+  const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
+    fetchDashboardData();
     fetchRecentListings();
   }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const response = await getDashboard();
+      setDashboardData(response.data);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    }
+  };
 
   const fetchRecentListings = async () => {
     try {
@@ -30,22 +39,24 @@ const CustomerDashboard = () => {
     }
   };
 
-  const quickStats = [
-    { label: 'Total Bookings', value: '12', icon: '📅', color: 'from-blue-600 to-blue-700' },
-    { label: 'Active Bookings', value: '3', icon: '✅', color: 'from-green-600 to-green-700' },
-    { label: 'Favorites', value: '8', icon: '❤️', color: 'from-red-600 to-red-700' },
-    { label: 'Reviews Given', value: '5', icon: '⭐', color: 'from-yellow-600 to-yellow-700' },
+  const quickStats = dashboardData ? [
+    { label: 'Total Bookings', value: dashboardData.totalBookings?.toString() || '0', icon: '📅', color: 'from-blue-600 to-blue-700' },
+    { label: 'Active Bookings', value: dashboardData.activeBookings?.toString() || '0', icon: '✅', color: 'from-green-600 to-green-700' },
+    { label: 'Favorites', value: dashboardData.favorites?.toString() || '0', icon: '❤️', color: 'from-red-600 to-red-700' },
+    { label: 'Reviews Given', value: dashboardData.totalReviews?.toString() || '0', icon: '⭐', color: 'from-yellow-600 to-yellow-700' },
+  ] : [
+    { label: 'Total Bookings', value: '0', icon: '📅', color: 'from-blue-600 to-blue-700' },
+    { label: 'Active Bookings', value: '0', icon: '✅', color: 'from-green-600 to-green-700' },
+    { label: 'Favorites', value: '0', icon: '❤️', color: 'from-red-600 to-red-700' },
+    { label: 'Reviews Given', value: '0', icon: '⭐', color: 'from-yellow-600 to-yellow-700' },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Header */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            Welcome back, <span className="text-blue-600">{user?.name}! 👋</span>
+            Welcome back, <span className="text-blue-600">{dashboardData?.name || user?.name}! 👋</span>
           </h1>
           <p className="text-gray-600 text-lg">Ready to plan your next amazing experience?</p>
         </div>
@@ -96,7 +107,7 @@ const CustomerDashboard = () => {
               variant="outline"
               size="lg"
               className="w-full justify-center"
-              onClick={() => navigate('/customer/listings')}
+              onClick={() => navigate('/customer/favorites')}
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -119,13 +130,36 @@ const CustomerDashboard = () => {
           </div>
 
           {loading ? (
-            <LoadingSpinner />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Card key={i} className="animate-pulse">
+                  <div className="aspect-video bg-gray-200 rounded-lg mb-4"></div>
+                  <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-5/6 mb-3"></div>
+                  <div className="flex items-center justify-between">
+                    <div className="h-4 bg-gray-200 rounded w-16"></div>
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                  </div>
+                </Card>
+              ))}
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {recentListings.map((listing) => (
                 <Card key={listing._id} className="cursor-pointer" onClick={() => navigate(`/customer/listings/${listing._id}`)}>
-                  <div className="aspect-video bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg mb-4 flex items-center justify-center text-4xl">
-                    {listing.propertyType === 'hotel' ? '🏨' : '🍽️'}
+                  <div className="aspect-video bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg mb-4 overflow-hidden">
+                    {listing.image ? (
+                      <img 
+                        src={listing.image} 
+                        alt={listing.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-4xl">
+                        {listing.propertyType === 'hotel' ? '🏨' : '🍽️'}
+                      </div>
+                    )}
                   </div>
                   <h3 className="font-bold text-lg text-gray-900 mb-2">{listing.name}</h3>
                   <p className="text-gray-600 text-sm mb-3 line-clamp-2">{listing.description}</p>
@@ -163,9 +197,6 @@ const CustomerDashboard = () => {
             <div className="hidden md:block text-6xl">✨</div>
           </div>
         </Card>
-      </div>
-
-      <Footer />
     </div>
   );
 };
