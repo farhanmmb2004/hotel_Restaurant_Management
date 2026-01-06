@@ -7,7 +7,7 @@ import { Booking } from "../models/booking.model.js";
 import { Unit } from "../models/unit.model.js";
 import { Review } from "../models/reveiw.model.js";
 import mongoose from "mongoose";
-import { act } from "react";
+
 const generateAccessAndRefreshToken=async(userId)=>{
     try {
         const user=await User.findById(userId);
