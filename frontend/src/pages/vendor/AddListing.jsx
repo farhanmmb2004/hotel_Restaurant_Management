@@ -6,7 +6,7 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
-
+//add new hotel or restaurant listing
 const AddListing = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
